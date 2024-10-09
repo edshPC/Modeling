@@ -5,13 +5,13 @@ sample_counts = [10, 20, 50, 100, 200, 300]
 
 for sample_count in sample_counts:
     sample = data[:sample_count]
-    print("\nВыборка из", sample_count, "значений:")
+    print(f'\nВыборка из {sample_count} значений:')
     mean = np.sum(sample) / len(sample) # M(X)
-    print("Мат ожидание:", mean)
+    print(f'Мат ожидание: {mean:.2f}')
     mean2 = np.sum(sample ** 2) / len(sample) # M(X^2)
     var = mean2 - mean ** 2
-    print("Дисперсия:", var)
+    print(f'Дисперсия: {var:.2f}')
     SKO = np.sqrt(var)
-    print("СКО:", SKO)
+    print(f'СКО: {SKO:.2f}')
     cv = SKO / mean
-    print("Коэффициент вариации:", cv*100, "%")
+    print(f'Коэффициент вариации: {cv*100:.1f}%')
