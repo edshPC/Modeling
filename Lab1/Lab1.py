@@ -13,3 +13,5 @@ for sample_count in sample_counts:
     print("Дисперсия:", var)
     SKO = np.sqrt(var)
     print("СКО:", SKO)
+    cv = SKO / mean
+    print("Коэффициент вариации:", cv*100, "%")
