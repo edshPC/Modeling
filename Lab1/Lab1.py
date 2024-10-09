@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 from scipy import stats
 
@@ -23,3 +25,6 @@ for sample_count in sample_counts:
         lower = mean - error
         upper = mean + error
         print(f"Доверительный интервал уровня {gamma}: [{lower:.2f}, {upper:.2f}]")
+    stand_mean=np.mean(data)
+    relative_deviation = abs((mean-np.mean(data))/np.mean(data)*100)
+    print(f"Относительное отклонене от эталонного значения:{relative_deviation:.2f}%")
