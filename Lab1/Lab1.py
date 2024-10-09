@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 from scipy import stats
 
 data = np.array([7.24, 6.24, 1.94, 0.07, 42.73, 9.10, 61.96, 17.49, 57.86, 14.31, 187.82, 1.88, 204.36, 11.38, 65.06, 124.61, 151.84, 3.61, 16.66, 57.77, 113.99, 44.11, 20.49, 50.59, 22.30, 27.69, 27.88, 85.69, 97.43, 142.05, 127.90, 125.55, 60.30, 121.01, 62.88, 31.43, 100.90, 79.12, 5.91, 17.33, 36.10, 9.17, 55.38, 84.49, 53.61, 5.02, 46.34, 34.28, 8.79, 30.29, 21.06, 116.44, 88.14, 62.06, 3.31, 189.00, 45.41, 11.82, 120.05, 17.21, 83.74, 32.44, 97.85, 55.87, 55.08, 361.48, 94.31, 91.32, 39.17, 66.85, 15.75, 139.17, 140.05, 49.50, 104.10, 182.87, 35.41, 138.48, 63.10, 37.76, 33.01, 60.36, 5.43, 12.62, 42.23, 3.52, 88.04, 63.22, 3.71, 59.32, 60.65, 2.57, 2.96, 49.90, 12.61, 51.96, 49.03, 50.31, 51.66, 89.56, 21.92, 13.83, 10.09, 5.48, 131.92, 30.50, 71.07, 111.32, 46.42, 134.68, 49.50, 79.65, 3.37, 8.57, 87.83, 88.79, 23.21, 67.38, 133.83, 86.44, 19.07, 112.93, 57.38, 2.29, 22.36, 9.04, 10.75, 131.21, 25.00, 12.94, 82.20, 43.57, 15.36, 24.99, 11.23, 193.46, 52.03, 72.30, 30.41, 248.87, 24.07, 6.23, 15.28, 3.86, 121.36, 49.47, 23.05, 8.06, 30.82, 17.51, 42.42, 78.65, 19.18, 78.64, 4.97, 56.92, 10.53, 19.74, 74.35, 5.72, 23.10, 24.54, 54.74, 95.76, 60.86, 38.43, 74.11, 66.96, 17.32, 73.50, 45.82, 55.19, 31.49, 18.88, 18.54, 47.59, 124.64, 31.71, 27.87, 149.60, 164.85, 96.06, 70.96, 105.35, 11.48, 37.55, 50.70, 51.35, 124.56, 23.14, 13.40, 1.97, 90.28, 82.43, 51.58, 121.68, 15.08, 10.99, 139.16, 86.92, 2.28, 102.18, 2.97, 17.00, 4.83, 81.74, 27.58, 14.23, 32.91, 19.83, 40.98, 6.27, 25.13, 16.70, 24.92, 57.60, 56.00, 64.22, 21.86, 54.02, 19.27, 6.97, 12.27, 12.01, 125.50, 22.15, 10.33, 4.60, 15.99, 17.65, 34.28, 111.73, 53.28, 16.15, 49.50, 15.79, 146.92, 6.66, 12.78, 189.66, 26.12, 39.50, 10.17, 73.19, 3.84, 11.41, 15.84, 22.66, 70.91, 8.32, 61.69, 95.77, 41.46, 129.67, 3.17, 5.83, 50.52, 17.13, 20.39, 13.31, 18.78, 16.78, 8.94, 90.10, 0.95, 4.25, 10.76, 56.99, 49.07, 186.87, 91.77, 88.65, 9.48, 4.21, 56.42, 51.15, 6.38, 59.05, 56.49, 14.48, 54.26, 546.43, 60.54, 39.80, 47.57, 55.68, 18.46, 12.84, 146.48, 126.15, 93.45, 66.07, 15.24, 42.69, 21.80, 2.82, 36.77, 140.76, 130.16, 213.524])
-sample_counts = [300, 10, 20, 50, 100, 200]
+sample_counts = [300, 200, 100, 50, 20, 10]
 def calculate_autocorrelation(seq, lag,mean):
     N = len(seq)
     if lag >= N:  # Проверка, чтобы избежать индексации вне массива
@@ -14,8 +14,6 @@ def calculate_autocorrelation(seq, lag,mean):
     denominator = (N - lag)
     return numerator / denominator
 
-# fig, axs = plt.subplots(3, 2, figsize=(8, 12))
-
 reference_values = {}
 def ref_or_dev(n, key, value):
     if n == 300:
@@ -23,6 +21,8 @@ def ref_or_dev(n, key, value):
     else:
         relative_dev = abs(value - reference_values[key]) / reference_values[key]
         print(f" - отн. отклонение от эталона: {relative_dev*100:.1f}%")
+
+graphs = []
 
 for n in sample_counts:
     sample = data[:n]
@@ -46,13 +46,8 @@ for n in sample_counts:
         lower = mean - error
         upper = mean + error
         print(f'Доверительный интервал уровня {gamma}: [{lower:.2f}, {upper:.2f}]')
-    plt.figure(figsize=(10, 5))
-    plt.plot(sample, marker='o', linestyle='-', color='b')
-    plt.title("График числовой последовательности")
-    plt.xlabel("Индекс")
-    plt.ylabel("Значение")
-    plt.grid()
-    plt.show()
+    graphs.append(sample)
+
     is_increasing = all(x < y for x, y in zip(sample, sample[1:]))
     is_decreasing = all(x > y for x, y in zip(sample, sample[1:]))
     if is_increasing:
@@ -65,8 +60,24 @@ for n in sample_counts:
     autocorrelations = [calculate_autocorrelation(sample, lag, mean) for lag in lags]
     print(autocorrelations)
     print(np.mean(autocorrelations))
-    plt.hist(sample, bins=10, edgecolor='black', alpha=0.7)
-    plt.title('Гистограмма распределения частот')
-    plt.xlabel('Значения')
-    plt.ylabel('Частота')
-    plt.show()
+
+
+fig, axs = plt.subplots(3, 2, figsize=(8, 12))
+fig.suptitle("Графики числовой последовательности")
+for i in range(len(graphs)):
+    cur_plt = axs[i // 2][i % 2]
+    cur_plt.plot(graphs[i], marker='o', linestyle='-', color='b')
+    cur_plt.set_xlabel("Индекс")
+    cur_plt.set_ylabel("Значение")
+    cur_plt.grid()
+plt.show()
+
+fig, axs = plt.subplots(3, 2, figsize=(8, 12))
+fig.suptitle("Гистограммы распределения частот")
+for i in range(len(graphs)):
+    cur_plt = axs[i // 2][i % 2]
+    cur_plt.hist(graphs[i], bins=10, edgecolor='black', alpha=0.7)
+    cur_plt.set_xlabel('Значения')
+    cur_plt.set_ylabel('Частота')
+plt.show()
+
