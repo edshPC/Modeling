@@ -6,5 +6,10 @@ sample_counts = [10, 20, 50, 100, 200, 300]
 for sample_count in sample_counts:
     sample = data[:sample_count]
     print("\nВыборка из", sample_count, "значений:")
-    mean = sample.sum() / len(sample)
+    mean = np.sum(sample) / len(sample) # M(X)
     print("Мат ожидание:", mean)
+    mean2 = np.sum(sample ** 2) / len(sample) # M(X^2)
+    var = mean2 - mean ** 2
+    print("Дисперсия:", var)
+    SKO = np.sqrt(var)
+    print("СКО:", SKO)
