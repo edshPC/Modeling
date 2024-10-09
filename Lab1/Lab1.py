@@ -53,6 +53,14 @@ for n in sample_counts:
     plt.ylabel("Значение")
     plt.grid()
     plt.show()
+    is_increasing = all(x < y for x, y in zip(sample, sample[1:]))
+    is_decreasing = all(x > y for x, y in zip(sample, sample[1:]))
+    if is_increasing:
+        print("Возрастающая последовательность")
+    elif is_decreasing:
+        print("Убывающая последовательность")
+    else:
+        print("Переодичная последовательность")
     lags = range(n)
     autocorrelations = [calculate_autocorrelation(sample, lag, mean) for lag in lags]
     print(autocorrelations)
