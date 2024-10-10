@@ -126,7 +126,7 @@ def confidence_interval(mean, n):
         print(f'Доверительный интервал уровня {gamma}: [{lower:.2f}, {upper:.2f}]')
         ref_or_dev(f'error{gamma}', lower * 2)
 
-autocorrections,confidence_intervals,autocorrelations_approximation,confidence_intervals_approximation=[],[],[],[]
+autocorrelations,confidence_intervals,autocorrelations_approximation,confidence_intervals_approximation=[],[],[],[]
 for n in sample_counts:
     sample = data[:n]
     print(f'\nВыборка из {n} значений:')
@@ -155,7 +155,7 @@ for n in sample_counts:
     else:
         print("Периодичная последовательность")
 
-    autocorrections,confidence_intervals = autocorrelation_analysis(sample,autocorrections,confidence_intervals)
+    autocorrelations,confidence_intervals = autocorrelation_analysis(sample,autocorrelations,confidence_intervals)
     approximation_sample = approximate_distribution(cv, mean, sample, n)
     approximated_graphs.append(approximation_sample)
     print("Числовые характеристики аппроксимации")
@@ -198,6 +198,18 @@ for i in range(len(graphs)):
 plt.show()
 
 fig, axs = plt.subplots(3, 2, figsize=(8, 12))
+fig.suptitle('Автокорреляционная функция')
+print(len(autocorrelations))
+for i in range(len(autocorrelations)):
+    cur_plt = axs[i // 2][i % 2]
+    cur_plt.stem(autocorrelations[i], markerfmt='o', linefmt='-', basefmt='k-')
+    cur_plt.set_xlabel('Задержка (lag)')
+    cur_plt.set_ylabel('Автокорреляция')
+    cur_plt.axhline(y=confidence_intervals[i], color='r', linestyle='--')
+    cur_plt.axhline(y=-confidence_intervals[i], color='r', linestyle='--')
+plt.show()
+
+fig, axs = plt.subplots(3, 2, figsize=(8, 12))
 fig.suptitle("Графики аппроксимированной числовой последовательности")
 for i in range(len(approximated_graphs)):
     cur_plt = axs[i // 2][i % 2]
@@ -217,18 +229,7 @@ for i in range(len(approximated_graphs)):
 plt.show()
 
 fig, axs = plt.subplots(3, 2, figsize=(8, 12))
-fig.suptitle('Автокорреляционная функция')
-print(len(autocorrections))
-for i in range(len(autocorrections)):
-    cur_plt = axs[i // 2][i % 2]
-    cur_plt.stem(autocorrections[i], markerfmt='o', linefmt='-', basefmt='k-')
-    cur_plt.set_xlabel('Задержка (lag)')
-    cur_plt.set_ylabel('Автокорреляция')
-    cur_plt.axhline(y=confidence_intervals[i], color='r', linestyle='--')
-    cur_plt.axhline(y=-confidence_intervals[i], color='r', linestyle='--')
-plt.show()
-fig, axs = plt.subplots(3, 2, figsize=(8, 12))
-fig.suptitle('Автокорреляционная функция')
+fig.suptitle('Автокорреляционная функция апроксимации')
 for i in range(len(autocorrelations_approximation)):
     cur_plt = axs[i // 2][i % 2]
     cur_plt.stem(autocorrelations_approximation[i], markerfmt='o', linefmt='-', basefmt='k-')
