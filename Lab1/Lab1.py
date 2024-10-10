@@ -38,13 +38,18 @@ confidence_intervals = [0] * 6
 
 def autocorrelation_analysis(sample,autocors,confidence_intervals):
     lags = range(n - 1)
-    autocors.append(np.array([autocorrelation(sample, k) for k in lags]))
-    confidence_intervals.append(1.96 / np.sqrt(n))
-    if all(np.abs(np.array([autocorrelation(sample, k) for k in lags])[1:])
-           < confidence_intervals[-1]):
-        print('Последовательность  является случайной.')
+    autocor_coefs = np.array([autocorrelation(sample, k) for k in lags])[1:]
+    autocors.append(autocor_coefs)
+    max_val = 1.96 / np.sqrt(n)
+    confidence_intervals.append(max_val)
+    print(f'Коэффициенты АК: {autocor_coefs[:10]}')
+    # for i in range(10):
+    #     ref_or_dev(f'autocor{i}', autocor_coefs[i])
+    print(f'Граничное значние: {max_val:.3f}')
+    if np.all(np.abs(autocor_coefs) < max_val):
+        print('Последовательность является случайной.')
     else:
-        print('Последовательность  не является случайной.')
+        print('Последовательность не является случайной.')
     return autocors,confidence_intervals
 
 
@@ -198,7 +203,7 @@ for i in range(len(graphs)):
 plt.show()
 
 fig, axs = plt.subplots(3, 2, figsize=(8, 12))
-fig.suptitle('Автокорреляционная функция')
+fig.suptitle('Аппроксимированная автокорреляционная функция')
 for i in range(len(autocorrelations)):
     cur_plt = axs[i // 2][i % 2]
     cur_plt.stem(autocorrelations[i], markerfmt='o', linefmt='-', basefmt='k-')
