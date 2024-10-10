@@ -60,7 +60,7 @@ def ref_or_dev(key, value):
     if key not in reference_values:
         reference_values[key] = value
     else:
-        relative_dev = abs(value - reference_values[key]) / reference_values[key]
+        relative_dev = abs((value - reference_values[key]) / reference_values[key])
         print(f" - отн. отклонение от эталона: {relative_dev * 100:.1f}%")
 
 
@@ -69,6 +69,7 @@ approximated_graphs = []
 
 
 def approximate_distribution(cv, mean, sample, sample_size):
+    print(f'Для N={sample_size} КВ={cv:.2f}.', end=' ')
     if cv < 0.01:
         print("Для аппроксимации используется нормальное распределение:")
         a, b = min(sample), max(sample)
