@@ -88,13 +88,14 @@ def cv_val(mean, SKO):
     print(f'Коэффициент вариации: {cv * 100:.1f}%')
     return cv
 
-def confidence_interval(mean):
+def confidence_interval(mean, n):
     for gamma in [0.9, 0.95, 0.99]:
         z = stats.norm.ppf((1 + gamma) / 2)  # Критическое значение Z
         error = z * (SKO / np.sqrt(n))
         lower = mean - error
         upper = mean + error
         print(f'Доверительный интервал уровня {gamma}: [{lower:.2f}, {upper:.2f}]')
+        ref_or_dev(f'error{gamma}', lower * 2)
 
 for n in sample_counts:
     sample = data[:n]
@@ -112,7 +113,7 @@ for n in sample_counts:
     cv = cv_val(mean, SKO)
     ref_or_dev('cv', cv)
 
-    confidence_interval(mean)
+    confidence_interval(mean, n)
     graphs.append(sample)
 
     is_increasing = all(x < y for x, y in zip(sample, sample[1:]))
@@ -140,7 +141,7 @@ for n in sample_counts:
     approximation_cv = cv_val(approximation_mean, approximation_SKO)
     ref_or_dev('cv', approximation_cv)
 
-    confidence_interval(approximation_mean)
+    confidence_interval(approximation_mean, n)
 
     correlation_coefficient = np.corrcoef(sample, approximation_sample)[0, 1]
     print(f"Коэффициент корреляции между исходной и сгенерированной последовательностями: {correlation_coefficient:.4f}")
