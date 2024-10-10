@@ -30,8 +30,8 @@ def autocorrelation_analysis():
     else:
         print('Последовательность  не является случайной.')
 reference_values = {}
-def ref_or_dev(n, key, value):
-    if n == 300:
+def ref_or_dev(key, value):
+    if key not in reference_values:
         reference_values[key] = value
     else:
         relative_dev = abs(value - reference_values[key]) / reference_values[key]
@@ -101,16 +101,16 @@ for n in sample_counts:
     print(f'\nВыборка из {n} значений:')
 
     mean = mean_val(sample, n)
-    ref_or_dev(n, 'mean', mean)
+    ref_or_dev('mean', mean)
 
     var = var_val(sample, mean)
-    ref_or_dev(n, 'var', var)
+    ref_or_dev('var', var)
 
     SKO = SKO_val(var)
-    ref_or_dev(n, 'SKO', SKO)
+    ref_or_dev('SKO', SKO)
 
     cv = cv_val(mean, SKO)
-    ref_or_dev(n, 'cv', cv)
+    ref_or_dev('cv', cv)
 
     confidence_interval(mean)
     graphs.append(sample)
@@ -129,16 +129,16 @@ for n in sample_counts:
     approximated_graphs.append(approximation_sample)
     print("Числовые характеристики аппроксимации")
     approximation_mean = mean_val(approximation_sample, n)
-    ref_or_dev(n, 'mean', approximation_mean)
+    ref_or_dev('mean', approximation_mean)
 
     approximation_var = var_val(approximation_sample, approximation_mean)
-    ref_or_dev(n, 'var', approximation_var)
+    ref_or_dev('var', approximation_var)
 
     approximation_SKO = SKO_val(approximation_var)
-    ref_or_dev(n, 'SKO', approximation_SKO)
+    ref_or_dev('SKO', approximation_SKO)
 
     approximation_cv = cv_val(approximation_mean, approximation_SKO)
-    ref_or_dev(n, 'cv', approximation_cv)
+    ref_or_dev('cv', approximation_cv)
 
     confidence_interval(approximation_mean)
 
