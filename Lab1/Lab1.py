@@ -12,21 +12,14 @@ def autocorrelation(X, k):
     numerator = np.sum((X[:n - k] - mean_X) * (X[k:] - mean_X))
     denominator = np.sqrt(np.sum((X - mean_X) ** 2) * np.sum((X[k:] - mean_X) ** 2))
     return numerator / denominator if denominator != 0 else 0
-def autocorrelation_analysis():
-    lags = range(n-1)
-    autocorrelations=np.array([autocorrelation(sample,k) for k in lags])
-    plt.figure(figsize=(10, 6))
-    plt.stem(autocorrelations, markerfmt='o', linefmt='-', basefmt='k-')
-    plt.xlabel('Задержка (lag)')
-    plt.ylabel('Автокорреляция')
-    plt.title('Автокорреляционная функция')
-    plt.grid(True)
 
-    confidence_intervals = 1.96 / np.sqrt(n)
-    plt.axhline(y=confidence_intervals, color='r', linestyle='--')
-    plt.axhline(y=-confidence_intervals, color='r', linestyle='--')
-    plt.show()
-    if all(np.abs(autocorrelations) < confidence_intervals):
+confidence_intervals=[0]*6
+autocorrelations=[]
+def autocorrelation_analysis(i):
+    lags = range(n-1)
+    autocorrelations.append(np.array([autocorrelation(sample,k) for k in lags]))
+    confidence_intervals[i] = 1.96 / np.sqrt(n)
+    if all(np.abs(autocorrelations[i]) < confidence_intervals[i]):
         print('Последовательность  является случайной.')
     else:
         print('Последовательность  не является случайной.')
@@ -97,7 +90,7 @@ def confidence_interval(mean, n):
         upper = mean + error
         print(f'Доверительный интервал уровня {gamma}: [{lower:.2f}, {upper:.2f}]')
         ref_or_dev(f'error{gamma}', lower * 2)
-
+i=0
 for n in sample_counts:
     sample = data[:n]
     print(f'\nВыборка из {n} значений:')
@@ -126,7 +119,8 @@ for n in sample_counts:
     else:
         print("Периодичная последовательность")
 
-    autocorrelation_analysis()
+    autocorrelation_analysis(i)
+    i+=1
     approximation_sample = approximate_distribution(cv, mean, sample, n)
     approximated_graphs.append(approximation_sample)
     print("Числовые характеристики аппроксимации")
@@ -184,4 +178,15 @@ for i in range(len(approximated_graphs)):
     cur_plt.hist(approximated_graphs[i], bins=10, edgecolor='black', alpha=0.7)
     cur_plt.set_xlabel('Значения')
     cur_plt.set_ylabel('Частота')
+plt.show()
+
+fig, axs = plt.subplots(3, 2, figsize=(8, 12))
+fig.suptitle('Автокорреляционная функция')
+for i in range(len(autocorrelations)):
+    cur_plt = axs[i // 2][i % 2]
+    cur_plt.stem(autocorrelations[i],  markerfmt='o', linefmt='-', basefmt='k-')
+    cur_plt.set_xlabel('Задержка (lag)')
+    cur_plt.set_ylabel('Автокорреляция')
+    cur_plt.axhline(y=confidence_intervals[i], color='r', linestyle='--')
+    cur_plt.axhline(y=-confidence_intervals[i], color='r', linestyle='--')
 plt.show()
