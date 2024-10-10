@@ -199,7 +199,6 @@ plt.show()
 
 fig, axs = plt.subplots(3, 2, figsize=(8, 12))
 fig.suptitle('Автокорреляционная функция')
-print(len(autocorrelations))
 for i in range(len(autocorrelations)):
     cur_plt = axs[i // 2][i % 2]
     cur_plt.stem(autocorrelations[i], markerfmt='o', linefmt='-', basefmt='k-')
