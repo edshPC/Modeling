@@ -1,6 +1,4 @@
-import inspect
 import math
-import statsmodels.tsa.stattools as sm
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -13,33 +11,9 @@ def calculate_autocorrelation(seq, lag,mean):
     if lag >= N:  # Проверка, чтобы избежать индексации вне массива
         return None
     numerator = sum((seq[t] - mean) * (seq[t + lag] - mean) for t in range(N - lag))
-    denominator = np.sqrt(sum((seq[t] - mean)**2 for t in range(N- lag))*sum((seq[t+lag] - mean)**2 for t in range(N- lag)))
+    denominator = (N - lag)
     return numerator / denominator
 
-def autocorrelation(X, k):
-    n = len(X)
-    mean_X = np.mean(X)
-    numerator = np.sum((X[:n - k] - mean_X) * (X[k:] - mean_X))
-    denominator = np.sqrt(np.sum((X - mean_X) ** 2) * np.sum((X[k:] - mean_X) ** 2))
-    return numerator / denominator if denominator != 0 else 0
-def autocorrelation_analysis():
-    lags = range(n-1)
-    autocorrelations=np.array([autocorrelation(sample,k) for k in lags])
-    plt.figure(figsize=(10, 6))
-    plt.stem(autocorrelations, markerfmt='o', linefmt='-', basefmt='k-')
-    plt.xlabel('Задержка (lag)')
-    plt.ylabel('Автокорреляция')
-    plt.title('Автокорреляционная функция')
-    plt.grid(True)
-
-    confidence_intervals = 1.96 / np.sqrt(n)
-    plt.axhline(y=confidence_intervals, color='r', linestyle='--')
-    plt.axhline(y=-confidence_intervals, color='r', linestyle='--')
-    plt.show()
-    if all(np.abs(autocorrelations) < confidence_intervals):
-        print('Последовательность  является случайной.')
-    else:
-        print('Последовательность  не является случайной.')
 reference_values = {}
 def ref_or_dev(n, key, value):
     if n == 300:
@@ -82,7 +56,10 @@ for n in sample_counts:
         print("Убывающая последовательность")
     else:
         print("Переодичная последовательность")
-    autocorrelation_analysis()
+    lags = range(n)
+    autocorrelations = [calculate_autocorrelation(sample, lag, mean) for lag in lags]
+    print(autocorrelations)
+    print(np.mean(autocorrelations))
 
 
 fig, axs = plt.subplots(3, 2, figsize=(8, 12))
@@ -103,21 +80,4 @@ for i in range(len(graphs)):
     cur_plt.set_xlabel('Значения')
     cur_plt.set_ylabel('Частота')
 plt.show()
-fig, axs = plt.subplots(3, 2, figsize=(8, 12))
-fig.suptitle("Графики числовой последовательности")
-for i in range(len(graphs)):
-    cur_plt = axs[i // 2][i % 2]
-    cur_plt.plot(graphs[i], marker='o', linestyle='-', color='b')
-    cur_plt.set_xlabel("Индекс")
-    cur_plt.set_ylabel("Значение")
-    cur_plt.grid()
-plt.show()
 
-fig, axs = plt.subplots(3, 2, figsize=(8, 12))
-fig.suptitle("Гистограммы распределения частот")
-for i in range(len(graphs)):
-    cur_plt = axs[i // 2][i % 2]
-    cur_plt.hist(graphs[i], bins=10, edgecolor='black', alpha=0.7)
-    cur_plt.set_xlabel('Значения')
-    cur_plt.set_ylabel('Частота')
-plt.show()
