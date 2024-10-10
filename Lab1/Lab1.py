@@ -31,8 +31,8 @@ def autocorrelation_analysis():
     else:
         print('Последовательность  не является случайной.')
 reference_values = {}
-def ref_or_dev(n, key, value):
-    if n == 300:
+def ref_or_dev(key, value):
+    if key not in reference_values:
         reference_values[key] = value
     else:
         relative_dev = abs(value - reference_values[key]) / reference_values[key]
@@ -45,17 +45,17 @@ for n in sample_counts:
     print(f'\nВыборка из {n} значений:')
     mean = np.sum(sample) / n # M(X)
     print(f'Мат ожидание: {mean:.2f}')
-    ref_or_dev(n, 'mean', mean)
+    ref_or_dev('mean', mean)
     mean2 = np.sum(sample ** 2) / n # M(X^2)
     var = mean2 - mean ** 2
     print(f'Дисперсия: {var:.2f}')
-    ref_or_dev(n, 'var', var)
+    ref_or_dev('var', var)
     SKO = np.sqrt(var)
     print(f'СКО: {SKO:.2f}')
-    ref_or_dev(n, 'SKO', SKO)
+    ref_or_dev('SKO', SKO)
     cv = SKO / mean
     print(f'Коэффициент вариации: {cv*100:.1f}%')
-    ref_or_dev(n, 'cv', cv)
+    ref_or_dev('cv', cv)
     for gamma in [0.9, 0.95, 0.99]:
         z = stats.norm.ppf((1 + gamma) / 2)  # Критическое значение Z
         error = z * (SKO / np.sqrt(n))
