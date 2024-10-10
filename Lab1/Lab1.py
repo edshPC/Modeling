@@ -242,3 +242,17 @@ for i in range(len(autocorrelations_approximation)):
     cur_plt.axhline(y=confidence_intervals_approximation[i], color='r', linestyle='--')
     cur_plt.axhline(y=-confidence_intervals_approximation[i], color='r', linestyle='--')
 plt.show()
+
+fig, axs = plt.subplots(3, 2, figsize=(8, 12))
+fig.suptitle("Сравнение плотности распределения аппроксимации с гистограммой")
+for i in range(len(graphs)):
+    cur_plt = axs[i // 2][i % 2]
+    cur_plt.hist(graphs[i], bins=15, density=True, edgecolor='black', alpha=0.6, label='Исходные данные')
+    xmin, xmax = min(graphs[i].min(), approximated_graphs[i].min()), max(graphs[i].max(), approximated_graphs[i].max())
+    x = np.linspace(xmin, xmax, len(approximated_graphs[i]))
+    kde_approximation = stats.gaussian_kde(approximated_graphs[i])
+    cur_plt.plot(x, kde_approximation(x), color='red', label='Аппроксимирующий закон', lw=2)
+    cur_plt.set_xlabel('Значения')
+    cur_plt.set_ylabel('Плотность')
+    cur_plt.legend()
+plt.show()
