@@ -19,7 +19,7 @@ def autocorrelation_analysis(i):
     lags = range(n-1)
     autocorrelations.append(np.array([autocorrelation(sample,k) for k in lags]))
     confidence_intervals[i] = 1.96 / np.sqrt(n)
-    if all(np.abs(autocorrelations[i]) < confidence_intervals[i]):
+    if all(np.abs(np.array([autocorrelation(sample,k) for k in lags])[1:]) < confidence_intervals[i],):
         print('Последовательность  является случайной.')
     else:
         print('Последовательность  не является случайной.')
