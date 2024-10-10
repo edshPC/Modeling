@@ -1,5 +1,3 @@
-import math
-
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy import stats
@@ -23,29 +21,81 @@ def ref_or_dev(n, key, value):
         print(f" - отн. отклонение от эталона: {relative_dev*100:.1f}%")
 
 graphs = []
+approximated_graphs = []
+def approximate_distribution(cv, mean, sample, sample_size):
+    if cv < 0.01:
+        print("Для аппроксимации используется нормальное распределение:")
+        a, b = min(sample), max(sample)
+        approximation = np.random.uniform(a, b, sample_size)
+        return approximation
 
-for n in sample_counts:
-    sample = data[:n]
-    print(f'\nВыборка из {n} значений:')
-    mean = np.sum(sample) / n # M(X)
+    elif np.isclose(cv, 1, atol=0.05):
+        print("Для аппроксимации используется экспоненциальное распределение:")
+        approximation = np.random.exponential(scale=mean, size=sample_size)
+        return approximation
+
+    elif cv < 1:
+        print("Для аппроксимации используется распределение Эрланга:")
+        k = int(round((1 / cv) ** 2))
+        approximation = np.random.gamma(k, scale=mean / k, size=sample_size)
+        return approximation
+
+    elif cv > 1:
+        print("Для аппроксимации используется гиперэкспоненциальное распределение:")
+        lambda1 = 1 / mean
+        lambda2 = lambda1 / 2
+        approximation = np.concatenate([
+            np.random.exponential(scale=1/lambda1, size=int(sample_size / 2)),
+            np.random.exponential(scale=1/lambda2, size=int(sample_size / 2))
+        ])
+        return approximation
+
+def mean_val(sample, n):
+    mean = np.sum(sample) / n  # M(X)
     print(f'Мат ожидание: {mean:.2f}')
-    ref_or_dev(n, 'mean', mean)
-    mean2 = np.sum(sample ** 2) / n # M(X^2)
+    return mean
+
+def var_val(sample, mean):
+    mean2 = np.sum(sample ** 2) / n  # M(X^2)
     var = mean2 - mean ** 2
     print(f'Дисперсия: {var:.2f}')
-    ref_or_dev(n, 'var', var)
+    return var
+
+def SKO_val(var):
     SKO = np.sqrt(var)
     print(f'СКО: {SKO:.2f}')
-    ref_or_dev(n, 'SKO', SKO)
+    return SKO
+
+def cv_val(mean, SKO):
     cv = SKO / mean
-    print(f'Коэффициент вариации: {cv*100:.1f}%')
-    ref_or_dev(n, 'cv', cv)
+    print(f'Коэффициент вариации: {cv * 100:.1f}%')
+    return cv
+
+def confidence_interval(mean):
     for gamma in [0.9, 0.95, 0.99]:
         z = stats.norm.ppf((1 + gamma) / 2)  # Критическое значение Z
         error = z * (SKO / np.sqrt(n))
         lower = mean - error
         upper = mean + error
         print(f'Доверительный интервал уровня {gamma}: [{lower:.2f}, {upper:.2f}]')
+
+for n in sample_counts:
+    sample = data[:n]
+    print(f'\nВыборка из {n} значений:')
+
+    mean = mean_val(sample, n)
+    ref_or_dev(n, 'mean', mean)
+
+    var = var_val(sample, mean)
+    ref_or_dev(n, 'var', var)
+
+    SKO = SKO_val(var)
+    ref_or_dev(n, 'SKO', SKO)
+
+    cv = cv_val(mean, SKO)
+    ref_or_dev(n, 'cv', cv)
+
+    confidence_interval(mean)
     graphs.append(sample)
 
     is_increasing = all(x < y for x, y in zip(sample, sample[1:]))
@@ -55,11 +105,32 @@ for n in sample_counts:
     elif is_decreasing:
         print("Убывающая последовательность")
     else:
-        print("Переодичная последовательность")
-    lags = range(n)
-    autocorrelations = [calculate_autocorrelation(sample, lag, mean) for lag in lags]
-    print(autocorrelations)
-    print(np.mean(autocorrelations))
+        print("Периодичная последовательность")
+
+    # lags = range(n)
+    # autocorrelations = [calculate_autocorrelation(sample, lag, mean) for lag in lags]
+    # print(autocorrelations)
+    # print(np.mean(autocorrelations))
+
+    approximation_sample = approximate_distribution(cv, mean, sample, n)
+    approximated_graphs.append(approximation_sample)
+    print("Числовые характеристики аппроксимации")
+    approximation_mean = mean_val(approximation_sample, n)
+    ref_or_dev(n, 'mean', approximation_mean)
+
+    approximation_var = var_val(approximation_sample, approximation_mean)
+    ref_or_dev(n, 'var', approximation_var)
+
+    approximation_SKO = SKO_val(approximation_var)
+    ref_or_dev(n, 'SKO', approximation_SKO)
+
+    approximation_cv = cv_val(approximation_mean, approximation_SKO)
+    ref_or_dev(n, 'cv', approximation_cv)
+
+    confidence_interval(approximation_mean)
+
+    correlation_coefficient = np.corrcoef(sample, approximation_sample)[0, 1]
+    print(f"Коэффициент корреляции между исходной и сгенерированной последовательностями: {correlation_coefficient:.4f}")
 
 
 fig, axs = plt.subplots(3, 2, figsize=(8, 12))
@@ -81,3 +152,21 @@ for i in range(len(graphs)):
     cur_plt.set_ylabel('Частота')
 plt.show()
 
+fig, axs = plt.subplots(3, 2, figsize=(8, 12))
+fig.suptitle("Графики аппроксимированной числовой последовательности")
+for i in range(len(approximated_graphs)):
+    cur_plt = axs[i // 2][i % 2]
+    cur_plt.plot(approximated_graphs[i], marker='o', linestyle='-', color='b')
+    cur_plt.set_xlabel("Индекс")
+    cur_plt.set_ylabel("Значение")
+    cur_plt.grid()
+plt.show()
+
+fig, axs = plt.subplots(3, 2, figsize=(8, 12))
+fig.suptitle("Гистограммы распределения частот аппроксимации")
+for i in range(len(approximated_graphs)):
+    cur_plt = axs[i // 2][i % 2]
+    cur_plt.hist(approximated_graphs[i], bins=10, edgecolor='black', alpha=0.7)
+    cur_plt.set_xlabel('Значения')
+    cur_plt.set_ylabel('Частота')
+plt.show()
